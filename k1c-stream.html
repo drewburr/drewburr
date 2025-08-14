@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drewburr's K1C Stream</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --container-bg: #2d2d2d;
+            --border-color: #444;
+            --button-bg: #0d6efd;
+            --button-hover: #0b5ed7;
+            --status-online-bg: #1e4620;
+            --status-online-text: #a3d9a5;
+            --status-online-border: #2d5a2f;
+            --status-offline-bg: #4a1e1e;
+            --status-offline-text: #f5a3a3;
+            --status-offline-border: #5a2d2d;
+            --status-checking-bg: #3d3319;
+            --status-checking-text: #d9c441;
+            --status-checking-border: #4a3f26;
+            --spinner-color: #6c757d;
+            --spinner-accent: #0d6efd;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f0f0f0;
+            --text-color: #333;
+            --container-bg: white;
+            --border-color: #ddd;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+            --status-online-bg: #d4edda;
+            --status-online-text: #155724;
+            --status-online-border: #c3e6cb;
+            --status-offline-bg: #f8d7da;
+            --status-offline-text: #721c24;
+            --status-offline-border: #f5c6cb;
+            --status-checking-bg: #fff3cd;
+            --status-checking-text: #856404;
+            --status-checking-border: #ffeaa7;
+            --spinner-color: #f3f3f3;
+            --spinner-accent: #3498db;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+        .stream-container {
+            background-color: var(--container-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stream-img {
+            border: none;
+            border-radius: 4px;
+            transition: opacity 0.3s ease;
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: var(--text-color);
+            z-index: 10;
+        }
+        .spinner {
+            border: 4px solid var(--spinner-color);
+            border-top: 4px solid var(--spinner-accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.online {
+            background-color: var(--status-online-bg);
+            color: var(--status-online-text);
+            border: 1px solid var(--status-online-border);
+        }
+        .status.offline {
+            background-color: var(--status-offline-bg);
+            color: var(--status-offline-text);
+            border: 1px solid var(--status-offline-border);
+        }
+        .status.checking {
+            background-color: var(--status-checking-bg);
+            color: var(--status-checking-text);
+            border: 1px solid var(--status-checking-border);
+        }
+        .controls {
+            margin: 15px 0;
+        }
+        button {
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: var(--button-hover);
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .info {
+            color: var(--text-color);
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background-color: var(--button-bg);
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️ Light Mode</button>
+    <div class="container">
+        <h1>Drewburr's K1C Stream</h1>
+        <div class="stream-container">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                Loading stream...
+            </div>
+            <img
+                id="streamFrame"
+                src="http://k1c.drewburr.com:8080?action=stream"
+                alt="K1C M-JPEG Camera Stream"
+                class="stream-img"
+                style="opacity: 0;">
+        </div>
+
+        <div id="status" class="status checking">
+            <span id="statusText">Checking stream status...</span>
+        </div>
+
+        <div class="controls">
+            <button id="refreshBtn" onclick="refreshStream()">Refresh Stream</button>
+            <button id="fullscreenBtn" onclick="toggleFullscreen()">Toggle Fullscreen</button>
+            <button id="checkStatusBtn" onclick="checkStreamStatus()">Check Status</button>
+        </div>
+
+        <div class="info">
+            <p>M-JPEG stream from k1c.drewburr.com</p>
+            <p id="lastChecked">Last checked: <span id="lastCheckedTime">Never</span></p>
+            <p id="streamInfo">Stream resolution and framerate will be detected automatically.</p>
+        </div>
+    </div>
+
+    <script>
+        const streamFrame = document.getElementById('streamFrame');
+        const loading = document.getElementById('loading');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const lastCheckedTime = document.getElementById('lastCheckedTime');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const streamInfo = document.getElementById('streamInfo');
+
+        let streamCheckInterval;
+        let loadTimeout;
+        let currentResolution = { width: 0, height: 0 };
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeStream();
+            startPeriodicCheck();
+            initializeTheme();
+        });
+
+        function initializeStream() {
+            showLoading(true);
+
+            // Set a shorter loading timeout and then hide loading regardless
+            loadTimeout = setTimeout(() => {
+                showLoading(false);
+                // Don't automatically set to offline, let the status check handle it
+                checkStreamStatus();
+                detectStreamResolution();
+            }, 3000); // Reduced from 10 seconds to 3 seconds
+
+            // Remove iframe onload/onerror listeners as they don't work reliably with streams
+            // The stream will start loading immediately when the iframe src is set
+        }
+
+        function showLoading(show) {
+            if (show) {
+                loading.style.display = 'block';
+                streamFrame.style.opacity = '0';
+            } else {
+                loading.style.display = 'none';
+                streamFrame.style.opacity = '1';
+            }
+        }
+
+        function updateStatus(type, message) {
+            status.className = `status ${type}`;
+            statusText.textContent = message;
+        }
+
+        function updateLastChecked() {
+            const now = new Date();
+            lastCheckedTime.textContent = now.toLocaleTimeString();
+        }
+
+        function refreshStream() {
+            refreshBtn.disabled = true;
+            updateStatus('checking', 'Refreshing stream...');
+            showLoading(true);
+
+            // Force reload by changing src attribute
+            const currentSrc = streamFrame.src;
+            streamFrame.src = '';
+            setTimeout(() => {
+                streamFrame.src = currentSrc.split('&t=')[0] + '&t=' + Date.now();
+                refreshBtn.disabled = false;
+                // Hide loading after a short delay and check status
+                setTimeout(() => {
+                    showLoading(false);
+                    checkStreamStatus();
+                    detectStreamResolution();
+                }, 2000);
+            }, 500);
+        }
+
+        function checkStreamStatus() {
+            updateStatus('checking', 'Checking stream availability...');
+
+            // Create a test image to check if the stream endpoint is accessible
+            const testImg = new Image();
+            testImg.onload = function() {
+                updateStatus('online', 'Stream endpoint is accessible');
+                updateLastChecked();
+                // Also detect resolution when we know the stream is working
+                detectStreamResolution();
+            };
+            testImg.onerror = function() {
+                updateStatus('offline', 'Stream endpoint is not accessible');
+                updateLastChecked();
+            };
+
+            // Test with a single frame request
+            testImg.src = 'http://k1c.drewburr.com:8080?action=snapshot&t=' + Date.now();
+        }
+
+        function detectStreamResolution() {
+            // Create a test image to get the actual stream dimensions
+            const testImg = new Image();
+            testImg.onload = function() {
+                const newWidth = this.naturalWidth;
+                const newHeight = this.naturalHeight;
+
+                if (newWidth > 0 && newHeight > 0) {
+                    currentResolution.width = newWidth;
+                    currentResolution.height = newHeight;
+                    adjustIframeSize(newWidth, newHeight);
+                    updateStreamInfo(newWidth, newHeight);
+                }
+            };
+            testImg.onerror = function() {
+                console.log('Could not detect stream resolution');
+            };
+
+            // Use snapshot endpoint to get a single frame for dimension detection
+            testImg.src = 'http://k1c.drewburr.com:8080?action=snapshot&t=' + Date.now();
+        }
+
+        function adjustIframeSize(width, height) {
+            const container = document.querySelector('.stream-container');
+            const containerWidth = container.clientWidth - 40; // Account for padding
+            const maxHeight = window.innerHeight * 0.8; // Max 80% of viewport height
+
+            // Calculate aspect ratio
+            const aspectRatio = width / height;
+
+            // Calculate new dimensions maintaining aspect ratio
+            let newWidth = Math.min(containerWidth, width);
+            let newHeight = newWidth / aspectRatio;
+
+            // If height is too large, scale down based on height
+            if (newHeight > maxHeight) {
+                newHeight = maxHeight;
+                newWidth = newHeight * aspectRatio;
+            }
+
+            // Apply new dimensions - img element will scale naturally without scrollbars
+            streamFrame.style.width = newWidth + 'px';
+            streamFrame.style.height = newHeight + 'px';
+            streamFrame.style.maxWidth = newWidth + 'px';
+            streamFrame.style.maxHeight = newHeight + 'px';
+
+            // Ensure the container adjusts to the image size
+            container.style.minHeight = (newHeight + 40) + 'px'; // Add padding
+        }
+
+        function updateStreamInfo(width, height) {
+            const aspectRatio = (width / height).toFixed(2);
+            streamInfo.textContent = `Stream resolution: ${width}x${height} (${aspectRatio}:1 aspect ratio)`;
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                streamFrame.requestFullscreen().catch(err => {
+                    console.log('Error attempting to enable fullscreen:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function startPeriodicCheck() {
+            // Check stream status every 30 seconds
+            streamCheckInterval = setInterval(() => {
+                checkStreamStatus();
+            }, 30000);
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeToggleText(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeToggleText(newTheme);
+        }
+
+        function updateThemeToggleText(theme) {
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+
+        // Handle visibility change to pause/resume checks when tab is not active
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(streamCheckInterval);
+            } else {
+                startPeriodicCheck();
+                checkStreamStatus();
+            }
+        });
+
+        // Handle window focus/blur for additional efficiency
+        window.addEventListener('focus', function() {
+            checkStreamStatus();
+        });
+
+        // Handle window resize to readjust iframe size
+        window.addEventListener('resize', function() {
+            if (currentResolution.width > 0 && currentResolution.height > 0) {
+                adjustIframeSize(currentResolution.width, currentResolution.height);
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            clearInterval(streamCheckInterval);
+            clearTimeout(loadTimeout);
+        });
+    </script>
+</body>
+</html>
