@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to drewburr.com!</title>
+    <style>
+        :root, [data-theme="light"] {
+            --bg-color: #f0f0f0;
+            --text-color: #333;
+            --container-bg: white;
+            --border-color: #ddd;
+            --link-color: #1e6bb8;
+            --button-bg: #007bff;
+            --button-hover: #0056b3;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --container-bg: #2d2d2d;
+            --border-color: #444;
+            --link-color: #2e8cff;
+            --button-bg: #0d6efd;
+            --button-hover: #0b5ed7;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px 40px;
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+        h3 {
+            margin-top: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background-color: var(--button-bg);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">Toggle Theme</button>
+    <div class="container">
+        <h1>Welcome to drewburr.com!</h1>
+        <p>This page is currently a WIP. Stay tuned for more!</p>
+
+        <h3>Links</h3>
+        <ul>
+            <li><a href="k1c-stream.html">K1C Camera Stream</a> - Live stream from my 3D printer</li>
+        </ul>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const themeToggle = document.getElementById('themeToggle');
+
+        function initializeTheme() {
+          const savedTheme = localStorage.getItem('theme') || 'dark';
+          document.documentElement.setAttribute('data-theme', savedTheme);
+          updateThemeToggleText(savedTheme);
+        }
+
+        function toggleTheme() {
+          const currentTheme = document.documentElement.getAttribute('data-theme');
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', newTheme);
+          localStorage.setItem('theme', newTheme);
+          updateThemeToggleText(newTheme);
+        }
+
+        function updateThemeToggleText(theme) {
+          themeToggle.textContent = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+
+        initializeTheme();
+      });
+    </script>
+</body>
+</html>

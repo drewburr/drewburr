@@ -23,6 +23,7 @@
             --status-checking-border: #4a3f26;
             --spinner-color: #6c757d;
             --spinner-accent: #0d6efd;
+            --link-color: #007bff;
         }
 
         [data-theme="light"] {
@@ -43,6 +44,7 @@
             --status-checking-border: #ffeaa7;
             --spinner-color: #f3f3f3;
             --spinner-accent: #3498db;
+            --link-color: #007bff;
         }
 
         body {
@@ -57,6 +59,17 @@
             max-width: 1200px;
             margin: 0 auto;
             text-align: center;
+        }
+        .home-link {
+            margin-bottom: 20px;
+        }
+        .home-link a {
+            color: var(--link-color);
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .home-link a:hover {
+            text-decoration: underline;
         }
         h1 {
             color: var(--text-color);
@@ -181,6 +194,7 @@
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">☀️ Light Mode</button>
     <div class="container">
         <h1>Drewburr's K1C Stream</h1>
+        <div class="home-link"><a href="index.html">&larr; Return to Home</a></div>
         <div class="stream-container">
             <div id="loading" class="loading">
                 <div class="spinner"></div>
